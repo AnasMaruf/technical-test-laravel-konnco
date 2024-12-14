@@ -35,6 +35,7 @@ class Homepage extends Component
             if ($cartItem->quantity < $product->stok) {
                 $cartItem->increment('quantity');
                 $cartItem->update(['total_price' => $cartItem->quantity * $product->price]);
+                session()->flash('success', 'Produk berhasil ditambahkan ke keranjang!');
             } else {
                 session()->flash('error', 'Jumlah sudah mencapai stok maksimum!');
             }
@@ -45,6 +46,7 @@ class Homepage extends Component
                 'quantity' => 1,
                 'total_price' => $product->price,
             ]);
+            session()->flash('success', 'Produk berhasil ditambahkan ke keranjang!');
         }
 
         $this->updateTotalPrice();

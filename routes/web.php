@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\DashboardProductController;
 use App\Models\Product;
 use Illuminate\Support\Facades\Auth;
@@ -39,7 +40,13 @@ Route::get('/cart', function () {
     return view('dashboard.cart', compact('title','name'));
 })->name('cart.index')->middleware('auth');
 
+//CHECKOUT
+Route::get('/checkout/{transactionId}', [CheckoutController::class, 'payment'])->name('checkout');
+Route::get('/checkout/success/{transaction}', [CheckoutController::class, 'success'])->name('checkout.success');
+
 //CMS PRODUCT
 Route::middleware('admin')->prefix('/dashboard-cms')->group(function () {
     Route::resource('/product', DashboardProductController::class);
 });
+
+
