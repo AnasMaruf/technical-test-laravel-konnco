@@ -14,6 +14,9 @@ use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Tables\Actions\BulkAction;
+use Filament\Tables\Actions\BulkActionGroup;
+use Illuminate\Database\Eloquent\Collection;
 
 class ProductResource extends Resource
 {
@@ -28,6 +31,14 @@ class ProductResource extends Resource
                 Forms\Components\TextInput::make('name')->required()->maxLength(100),
                 Forms\Components\TextInput::make('price')->integer()->required(),
                 Forms\Components\TextInput::make('stok')->integer()->required(),
+                Forms\Components\Radio::make('status')
+                ->label('Status')
+                ->options([
+                    'active' => 'Active',
+                    'inactive' => 'Inactive',
+                ])
+                ->required()
+                ->default('active'),
                 Forms\Components\Textarea::make('description')->required(),
                 Forms\Components\FileUpload::make('image')->image()
                 ->required()
@@ -43,11 +54,11 @@ class ProductResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('name')->sortable(),
+                Tables\Columns\TextColumn::make('name'),
                 Tables\Columns\TextColumn::make('price'),
                 Tables\Columns\TextColumn::make('stok'),
                 Tables\Columns\TextColumn::make('status'),
-                Tables\Columns\TextColumn::make('created_at')->since()->sortable(),
+                Tables\Columns\TextColumn::make('created_at')->since(),
             ])
             ->filters([
                 //
@@ -56,9 +67,15 @@ class ProductResource extends Resource
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                BulkActionGroup::make([
+                    BulkAction::make('delete')
+                        ->requiresConfirmation()
+                        ->action(fn (Collection $records) => $records->each->delete()),
+                    BulkAction::make('forceDelete')
+                        ->requiresConfirmation()
+                        ->action(fn (Collection $records) => $records->each->forceDelete()),
                 ]),
+
             ]);
     }
 

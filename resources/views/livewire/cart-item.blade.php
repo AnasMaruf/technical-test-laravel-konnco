@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-gray-100 py-10">
+<div class="min-h-screen bg-gray-100 py-10" wire:poll.500ms="loadCart">
     <div class="max-w-4xl mx-auto bg-white p-6 shadow-md rounded-md">
         <h1 class="text-2xl font-semibold mb-6">Shopping Cart</h1>
         @if (session()->has('success'))
@@ -88,6 +88,8 @@
                     <!-- Remove Button -->
                     <button
                         wire:click="removeCartItem({{ $item['id'] }})"
+                        wire:click="delete"
+                        wire:confirm="Are you sure you want to delete this post?"
                         wire:loading.attr="disabled"
                         class="text-red-500 hover:text-red-700 font-medium"
                     >
@@ -134,3 +136,11 @@
         </div>
     </div>
 </div>
+@script
+<script>
+    Livewire.on("refreshCart", () => {
+        // Kode untuk memaksa browser me-refresh data atau menampilkan notifikasi
+        location.reload(); // Ini akan memuat ulang halaman
+    });
+</script>
+@endscript

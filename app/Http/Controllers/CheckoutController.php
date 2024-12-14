@@ -37,6 +37,7 @@ class CheckoutController extends Controller
         $transaction->save();
 
         CartItem::where('user_id', $transaction->user_id)->delete();
+        Product::where('stok', 0)->update(['status' => 'inactive']);
         return view('dashboard.checkout.success', compact('transaction', 'title','name'));
     }
 }

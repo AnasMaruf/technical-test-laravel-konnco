@@ -41,23 +41,32 @@ class CartItem extends Component
         } elseif ($operation === 'decrement' && $cartItem->quantity > 1) {
             $cartItem->decrement('quantity');
             session()->flash('success', 'Quantity Produk berhasil dikurangi!');
-
         }else{
             session()->flash('error', 'Jumlah sudah mencapai stok maksimum!');
-            // $this->loadCart();
         }
         $cartItem->update(['total_price' => $cartItem->quantity * $product->price]);
-        $this->loadCart();
+        // $this->loadCart();
+        // $this->dispatch('cart-updated', ['totalPrice' => $this->totalPrice]);
+        $this->dispatch('refreshCart');
     }
 
     public function removeCartItem($cartItemId){
         ModelsCartItem::find($cartItemId)->delete();
         session()->flash('success', 'Produk berhasil dihapus dari keranjang!');
-        $this->loadCart();
+        // $this->loadCart();
+        // $this->dispatch('cart-updated', ['totalPrice' => $this->totalPrice]);
+        $this->dispatch('refreshCart');
     }
 
-    public function checkout($userId, $totalPrice){
+    public function getListeners()
+{
+    return ['refreshCart' => 'refreshCart'];
+}
 
+    public function checkout($userId, $totalPrice)
+    {
+        $this->loadCart();
+        // \Log::info('checkout', [$userId, $totalPrice]);
         $transaction = new Transaction();
         $transaction->user_id = $userId;
         $transaction->total_price = $totalPrice;
@@ -87,11 +96,12 @@ class CartItem extends Component
         $transaction->snap_token = $snapToken;
         $transaction->save();
 
-        return redirect('/checkout')->route('checkout',$transaction->id);
+        $this->redirectRoute('checkout',  $transaction->id);
     }
 
     public function render()
     {
+
         return view('livewire.cart-item');
     }
 }
